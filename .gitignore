@@ -1,0 +1,10 @@
+gym_duckietown
+requirements.txt
+venv
+.npz
+*.pt
+__pycache__
+.vscode
+data_collection/dataset_images
+data_collection/dataset
+!Dockerfile.pt
