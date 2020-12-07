@@ -52,7 +52,8 @@ def _mod_mask(mask):
 
 
 def display_seg_mask(seg_img, masked):
-    dsize = seg_img.shape[0]*3, seg_img.shape[1]*3
+    scale_factor = 1
+    dsize = seg_img.shape[0]*scale_factor, seg_img.shape[1]*scale_factor
 
     seg_img = cv2.resize(seg_img, dsize)
     masked = cv2.resize(_mod_mask(masked), dsize)
