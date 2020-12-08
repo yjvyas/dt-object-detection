@@ -79,11 +79,11 @@ def display_img_seg_mask(real_img, seg_img, masked):
 
 def img_boxes(img, boxes, classes, label_class=True, color=(0,0,255)):
     """"Draws the image with the boxes and classes."""
-
+    img_ann = np.copy(img)
     font = cv2.FONT_HERSHEY_SIMPLEX
     for i, b in enumerate(boxes):
-        img = cv2.rectangle(img, tuple(b[0:2]), tuple(b[2:]), color,1)
+        img_ann = cv2.rectangle(img_ann, tuple(b[0:2]), tuple(b[2:]), color,1)
         if label_class:
-            img = cv2.putText(img,'{}'.format(classes[i]),tuple(b[0:2]), font, 1, color, 1, cv2.LINE_AA)
+            img_ann = cv2.putText(img_ann,'{}'.format(classes[i]),tuple(b[0:2]), font, 1, color, 1, cv2.LINE_AA)
     
-    return img
+    return img_ann
