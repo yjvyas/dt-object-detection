@@ -8,7 +8,7 @@ import torch.distributed as dist
 
 import errno
 import os
-
+import cv2
 
 class SmoothedValue(object):
     """Track a series of values and provide access to smoothed values over a
@@ -322,3 +322,14 @@ def init_distributed_mode(args):
                                          world_size=args.world_size, rank=args.rank)
     torch.distributed.barrier()
     setup_for_distributed(args.rank == 0)
+
+def img_boxes(img, boxes, classes, label_class=True, color=(0,0,255)):
+    """"Draws the image with the boxes and classes."""
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    for i, b in enumerate(boxes):
+        img = cv2.rectangle(img, tuple(b[0:2]), tuple(b[2:]), color,1)
+        if label_class:
+            img = cv2.putText(img,'{}'.format(classes[i]),tuple(b[0:2]), font, 1, color, 1, cv2.LINE_AA)
+    
+    return img

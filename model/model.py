@@ -1,6 +1,11 @@
 import torch
 from torchvision.transforms.functional import to_tensor
-
+from torchvision import transforms
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection import FasterRCNN
+from torchvision.models.detection.rpn import AnchorGenerator
+from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
+import torchvision
 
 class Wrapper:
     def __init__(self):
@@ -9,9 +14,9 @@ class Wrapper:
 
         self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.model = Model()
-        self.model.load_state_dict(torch.load("weights/model.pt", map_location=self.device))
-        self.model.to(self.device)
-        self.model.eval()
+        self.model.model.load_state_dict(torch.load("./weights/model.pt", map_location=self.device))
+        self.model.model.to(self.device)
+        self.model.model.eval()
 
     def predict(self, batch_or_image):
         # TODO: Make your model predict here!
@@ -41,14 +46,32 @@ class Wrapper:
             labels.append(pred["labels"].cpu().numpy())
             scores.append(pred["scores"].cpu().numpy())
 
+        for i, s in enumerate(scores):
+            ind = s>0.2
+            boxes[i] = boxes[i][ind]
+            labels[i] = labels[i][ind]
+            scores[i] = scores[i][ind]
+
         return boxes, labels, scores
 
 
 class Model(torch.nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-        # TODO Instantiate your weights etc here!
-        pass
-
+        self.model = create_model()
+       
     def forward(self, x, y=None):
         return self.model(x) if y is None else self.model(x, y)
+
+def create_model():
+    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=False, 
+                                                                 progress=True, 
+                                                                 num_classes=5, 
+                                                                 pretrained_backbone=True, 
+                                                                 trainable_backbone_layers=3)
+    # get number of input features for the classifier
+    in_features = model.roi_heads.box_predictor.cls_score.in_features
+    # replace the pre-trained head with a new one
+    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, 5)
+    print('Initialized fasterrcnn_resnet_50.')
+    return model
