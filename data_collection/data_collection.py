@@ -5,7 +5,7 @@ from utils import launch_env, seed, makedirs, display_seg_mask, display_img_seg_
 import cv2
 
 def save_npz(img, boxes, classes, npz_index):
-    np.savez(f"./data_collection/dataset/train_dataset/{npz_index}.npz", img, boxes, classes)
+    np.savez(f"./data_collection/dataset/{npz_index}.npz", img, boxes, classes)
 
 def clean_segmented_image(seg_img):
     # TODO
