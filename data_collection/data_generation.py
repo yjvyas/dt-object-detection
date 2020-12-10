@@ -14,7 +14,7 @@ def scale_boxes(boxes, classes, original_dim, new_dim):
                  round(b[1]/original_dim[1]*new_dim[1]),
                  round(b[2]/original_dim[0]*new_dim[0]),
                  round(b[3]/original_dim[1]*new_dim[1])]
-        if (b_new[2]-b_new[0])*(b_new[3]-b_new[1]) > 20: # remove boxes that are too small
+        if (b_new[2]-b_new[0])*(b_new[3]-b_new[1]) > 50: # remove boxes that are too small
             new_boxes.append(b_new)
             new_classes.append(classes[i])
     return new_boxes, new_classes
@@ -27,9 +27,9 @@ if __name__=='__main__':
 
     policy = PurePursuitPolicy(environment)
 
-    dataset_size = 5000
-    MAX_STEPS = 100
-    save_every = 100
+    dataset_size = 2000
+    MAX_STEPS = 500
+    save_every = 50
 
     img_dir = "./data_collection/dataset/train_images/"
     os.makedirs(img_dir, exist_ok=True)

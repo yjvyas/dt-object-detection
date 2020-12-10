@@ -9,36 +9,10 @@ from torchvision.transforms.functional import to_tensor
 import random
 from PIL import Image
 
-class RandomHorizontalFlip(object):
-    def __init__(self, prob):
-        self.prob = prob
-
-    def __call__(self, image, target):
-        if random.random() < self.prob:
-            height, width = image.shape[-2:]
-            image = image.flip(-1)
-            bbox = target["boxes"]
-            bbox[:, [0, 2]] = width - bbox[:, [2, 0]]
-            target["boxes"] = bbox
-            if "masks" in target:
-                target["masks"] = target["masks"].flip(-1)
-            if "keypoints" in target:
-                keypoints = target["keypoints"]
-                keypoints = _flip_coco_person_keypoints(keypoints, width)
-                target["keypoints"] = keypoints
-        return image, target
-
-def get_transform(train):
-    transforms = []
-    transforms.append(T.ToTensor())
-    if train:
-        transforms.append(T.RandomHorizontalFlip(0.5))
-    return T.Compose(transforms)
 
 class DuckietownObjectDataset(object):
-    def __init__(self, root, transforms):
+    def __init__(self, root):
         self.root = root
-        self.transforms = transforms
         # load all image files, sorting them to
         # ensure that they are aligned
         self.imgs = list(filter(lambda x: "npz" in x, os.listdir(root)))
@@ -71,7 +45,7 @@ class DuckietownObjectDataset(object):
     def __len__(self):
         return len(self.imgs)
 
-def main(train_path, model_path='./model/weights/', num_epochs=1, batch_size=2, lr=0.005, weight_decay=0.0005):
+def main(train_path, model_path='./model/weights/', num_epochs=5, batch_size=2, lr=0.005, weight_decay=0.0005):
     # TODO train loop here!
     # TODO don't forget to save the model's weights inside of `./weights`!
     print('batch size = {}'.format(batch_size))
@@ -82,7 +56,7 @@ def main(train_path, model_path='./model/weights/', num_epochs=1, batch_size=2, 
     model = create_model()
     model.to(device)
 
-    train_dataset = DuckietownObjectDataset(train_path, get_transform(train=True))
+    train_dataset = DuckietownObjectDataset(train_path)
     train_loader = torch.utils.data.DataLoader(train_dataset, \
         batch_size=batch_size, shuffle=True, num_workers=4,collate_fn=utils.collate_fn)
     
@@ -110,5 +84,5 @@ def main(train_path, model_path='./model/weights/', num_epochs=1, batch_size=2, 
     print("Training completed.")
 
 if __name__ == "__main__":
-    train_path = './data_collection/dataset/train_dataset/'
+    train_path = './data_collection/dataset/'
     main(train_path)

@@ -7,4 +7,5 @@ __pycache__
 .vscode
 data_collection/dataset_images
 data_collection/dataset
+eval/dataset
 !Dockerfile.pt
